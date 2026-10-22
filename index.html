@@ -6,7 +6,7 @@
 <title>Xapic Boutique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap">
 </head>
 <body>
 <style>
@@ -664,7 +664,7 @@ html, body { overflow-x: clip; }
 
 
 /* Changement de filtre : la carte se redessine (cadre au trait, trame, puis étiquette) avec un timing aléatoire */
-.card.redraw > :not(.cover-link) { animation: rise var(--dur, .3s) cubic-bezier(.35, .1, .25, 1) calc(var(--i, 0s) + .18s) both; }
+.card.redraw > :not(.cover-wrap) { animation: rise var(--dur, .3s) cubic-bezier(.35, .1, .25, 1) calc(var(--i, 0s) + .18s) both; }
 .card.redraw .cover-link.drawn::after { animation: draw-box var(--dur, .3s) cubic-bezier(.5, 0, .4, 1) var(--i, 0s) forwards; }
 .card.redraw .cover-link.drawn .cover::before { animation: hatch-in calc(var(--dur, .3s) + .06s) ease-out calc(var(--i, 0s) + .14s) forwards; }
 .card.redraw .cover-link.drawn .cover-kicker, .card.redraw .cover-link.drawn .stamp { animation: fade-in .14s ease calc(var(--i, 0s) + .3s) forwards; }
@@ -672,7 +672,7 @@ html, body { overflow-x: clip; }
 .card.redraw .cover-link::before { animation: fade-in .2s ease calc(var(--i, 0s) + .4s) both; }
 
 /* Version plus discrète : le cadre et le texte restent en place, seules la trame et les étiquettes se redessinent */
-.card.redraw > :not(.cover-link) { animation: none; }
+.card.redraw > :not(.cover-wrap) { animation: none; }
 .card.redraw .cover-link.sketch .cover { border-color: var(--ink); }
 .card.redraw .cover-link.drawn::after { display: none; animation: none; }
 .card.redraw .cover-link.drawn .cover::before { animation-duration: calc(var(--dur, .3s) + .04s); animation-delay: var(--i, 0s); }
@@ -779,10 +779,199 @@ html, body { overflow-x: clip; }
 .up-card .up-add, .up-card .up-add:hover { position: static; grid-column: 2; grid-row: 1; width: auto; height: auto; border-left-width: 1px; box-shadow: none; }
 .up-card .up-name, .up-card .up-price { grid-column: 1 / -1; }
 .up-card .up-name { margin-top: 2px; }
+
+/* ===================== Cadres tracés à la main (trait tremblé) + annotations ===================== */
+.cover { border-color: transparent; }
+.cover::after { content: ""; position: absolute; inset: 1px; z-index: 4; pointer-events: none; border: 2px solid var(--ink); filter: url(#wobble); }
+.cover-title { border-color: transparent; }
+.cover-title::after { content: ""; position: absolute; inset: -2px; pointer-events: none; border: 2px solid var(--ink); filter: url(#wobble); }
+.cover-title { position: relative; }
+.buy { border-top: 0; position: relative; }
+.buy::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--ink); filter: url(#wobble); }
+.card { position: relative; }
+.meta-row { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 10px; min-width: 0; }
+.card .note { transform: rotate(-4deg) translateY(2px); font: 600 21px/1 "Caveat", "Comic Sans MS", cursive; color: #2f5f9a; -webkit-text-fill-color: #2f5f9a; white-space: nowrap; margin-left: auto; }
+@media (max-width: 560px) { .card .note { font-size: 18px; } }
+
+/* ===================== Trait tremblé étendu : boutons, cartouches, bons plans, recherche, filtres, listes, panier, fiche ===================== */
+/* Boutons : la face (contour compris) est tracée à la main, l'ombre noire reste nette */
+.btn::after, .mini-add::after, .add::after { filter: url(#wobble); }
+
+/* Éléments à contour simple : le cadre passe sur un pseudo-élément filtré, le texte reste net */
+.search, .chip, .rail-nav button, .dd-btn, .ship, .coupon, .deal-box, .rub-head h3 { position: relative; border-color: transparent !important; }
+.search::after, .chip::after, .rail-nav button::after, .dd-btn::after, .ship::after, .rub-head h3::after,
+.coupon::after, .deal-box::after { content: ""; position: absolute; inset: -2px; pointer-events: none; border: 2px solid var(--ink); filter: url(#wobble); }
+.coupon::after { border-style: dashed; }
+.deal-box::after { border-style: dashed; border-color: var(--riso); }
+.ship.ok::after { border-style: dashed; border-color: var(--riso); }
+.chip.promo::after { border-color: var(--riso); }
+.chip:hover::after, .chip.promo:hover::after { border-color: var(--ink); }
+.dd-btn { z-index: 0; }
+
+/* Volet du panier : bord gauche tracé à la main */
+.drawer { border-left-color: transparent; }
+.drawer::before { content: ""; position: absolute; top: 0; bottom: 0; left: -3px; width: 3px; z-index: 3; background: var(--ink); filter: url(#wobble); pointer-events: none; }
+
+/* Fiche article : grand cadre tracé à la main */
+.sheet { border-color: transparent; }
+.sheet::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; border: 3px solid var(--ink); filter: url(#wobble); }
+@media (max-width: 760px) { .sheet::after { border-width: 3px 0 0; } }
+
+.dd-btn { border-width: 0; }
+.dd-btn::after { inset: 1px; }
+
+/* ===================== Hiérarchie : encré = important, crayonné = secondaire ===================== */
+:root { --pencil-line: #4b4843; }
+/* Actions et sections importantes : encre nette et épaisse */
+.btn::after, .mini-add[data-add]::after, .add::after { filter: none; }
+.btn.solid::after, .mini-add[data-add]::after { box-shadow: inset 0 0 0 2.5px var(--ink); }
+.rub-head h3::after { filter: none; border-width: 2.5px; }
+.sheet::after { filter: none; }
+.drawer::before { filter: none; }
+/* Éléments secondaires : trait de crayon fin, gris, tremblé */
+.search::after, .chip::after, .rail-nav button::after, .dd-btn::after, .coupon::after, .ship::after { border-color: var(--pencil-line); border-width: 1.6px; }
+.mini-add.ghost::after, .btn:not(.solid)::after { filter: url(#wobble); box-shadow: inset 0 0 0 1.6px var(--pencil-line); }
+.mini-add.ghost::before, .btn:not(.solid)::before { background: var(--pencil-line); opacity: .55; }
+.chip[aria-pressed="true"]::after { border-color: var(--ink); }
+.chip:hover::after { border-color: var(--ink); }
+
+/* Correctif : pas de liseré de papier clair autour du cadre tremblé des couvertures */
+.cover { border-width: 0; background: linear-gradient(var(--paper), var(--paper)) 3px 3px / calc(100% - 6px) calc(100% - 6px) no-repeat; }
+.cover::before { inset: 3px; }
+
+/* Crayonné au repos, encré dès qu'on interagit (survol, focus, sélection) */
+.search::after, .chip::after, .rail-nav button::after, .dd-btn::after, .mini-add.ghost::after, .btn:not(.solid)::after { transition: border-color .12s, border-width .12s, box-shadow .12s; }
+.search:focus-within::after, .search:hover::after,
+.chip:hover::after, .chip[aria-pressed="true"]::after,
+.rail-nav button:hover:not(:disabled)::after, .rail-nav button:focus-visible::after,
+.dd-btn:hover::after, .dd.open .dd-btn::after, .dd-btn:focus-visible::after { filter: none; border-color: var(--ink); border-width: 2.5px; }
+.search:focus-within { box-shadow: 3px 3px 0 var(--ink); outline: 0; }
+.dd.open .dd-btn, .dd-btn:focus-visible { box-shadow: 3px 3px 0 var(--ink); }
+.chip[aria-pressed="true"] { box-shadow: 3px 3px 0 var(--ink); }
+.mini-add.ghost:hover::after, .btn:not(.solid):hover::after { filter: none; box-shadow: inset 0 0 0 2.5px var(--ink); }
+.mini-add.ghost:hover::before, .btn:not(.solid):hover::before { background: var(--ink); opacity: 1; }
+
+/* Recherche et flèches ‹ › : toujours en style action (encré net) */
+.search::after, .rail-nav button::after { filter: none; border-color: var(--ink); border-width: 2.5px; }
+.search { box-shadow: 3px 3px 0 var(--ink); }
+.rail-nav button:not(:disabled) { box-shadow: 3px 3px 0 var(--ink); }
+.rail-nav button:disabled::after { border-color: var(--pencil-line); border-width: 1.6px; }
+
+/* Filtres de rubrique : toujours en style action (encré net) */
+.chip::after, .rub-combo .dd-btn::after { filter: none; border-color: var(--ink); border-width: 2.5px; }
+.chip.promo::after { border-color: var(--riso); }
+.chip, .rub-combo .dd-btn { box-shadow: 3px 3px 0 var(--ink); }
+.chips { padding: 0 4px 6px 0; }
+
+/* Cohérence : tout ce qui est cliquable (hors cartes) est en style action encré */
+.dd-btn::after { filter: none; border-color: var(--ink); border-width: 2.5px; }
+.dd-btn { box-shadow: 3px 3px 0 var(--ink); }
+.mini-add.ghost::after, .btn:not(.solid)::after { filter: none; box-shadow: inset 0 0 0 2.5px var(--ink); }
+.mini-add.ghost::before, .btn:not(.solid)::before { background: var(--ink); opacity: 1; }
+.size { box-shadow: 3px 3px 0 var(--ink); border-width: 2.5px; }
+.size:disabled { box-shadow: none; }
+.sheet-close, .up-add { box-shadow: 3px 3px 0 var(--ink); }
+
+/* Cartouches de section : non cliquables, donc style crayon */
+.rub-head h3::after { filter: url(#wobble); border-width: 1.8px; border-color: var(--pencil-line); }
+.rub-head h3 { box-shadow: 3px 3px 0 rgba(75,72,67,.4); }
+
+/* Cartouches de section plus présents : trait encré tremblé doublé au crayon, ombre hachurée (≠ ombre pleine des boutons) */
+.rub-head h3 { box-shadow: none; isolation: isolate; padding: 8px 16px 3px; font-size: clamp(30px, 3.4vw, 40px); }
+.rub-head h3::after { filter: url(#wobble); border-width: 2.5px; border-color: var(--ink); }
+.rub-head h3::before { content: ""; position: absolute; inset: 0; z-index: -1; transform: translate(7px, 7px); pointer-events: none;
+  background: repeating-linear-gradient(-45deg, var(--ink) 0 1.4px, transparent 1.4px 4.5px); filter: url(#wobble); }
+.rub-head h3 { background: var(--paper); }
+.rub-head h3 > span.pen { display: none; }
+@media (max-width: 760px) { .rub-head h3 { font-size: 24px; padding: 6px 12px 2px; } .rub-head h3::before { transform: translate(5px, 5px); } }
+
+.rub-head h3 { background: transparent; }
+.rub-head h3::before { z-index: -2; }
+.rub-head h3::after { z-index: -1; background: var(--paper); }
+
+/* Listes déroulantes : même style action que les filtres (une seule ombre, contour au bord) */
+.combo::before { display: none; }
+.dd-btn::after { inset: 0; }
+.dd-btn { box-shadow: 3px 3px 0 var(--ink); }
+@media (max-width: 760px) { .sort.combo .dd-btn { width: 148px; padding-right: 32px; letter-spacing: .02em; } .dd-btn { padding-left: 10px; } }
+
+/* Filtre sélectionné : reste rouge (comme au survol), contour encré et ombre noire */
+.chip[aria-pressed="true"], .chip[aria-pressed="true"]:hover { background: var(--riso); color: #fff; -webkit-text-fill-color: #fff; }
+.chip[aria-pressed="true"]::after { border-color: var(--ink); }
+.dd-list li[aria-selected="true"] { background: var(--riso); color: #fff; }
+
+/* Correctif : la liste ouverte passe au-dessus des cartes, y compris sur mobile */
+@media (max-width: 760px) { .toolbar { position: relative; top: auto; } }
+.toolbar:has(.dd.open) { z-index: 60; }
+.dd-list { z-index: 61; }
+
+/* Cartouches de section : trait plus calme (grande ondulation douce au lieu du tremblé fin) */
+.rub-head h3::after, .rub-head h3::before { filter: url(#wobble-soft); }
+
+/* ===================== Titres de rubrique : récitatif de BD ===================== */
+.rub-head h3.recit { display: inline-flex; align-items: stretch; padding: 0; margin: 0; background: none; border: 0; box-shadow: none; transform: none; isolation: isolate; position: relative; font-size: clamp(28px, 3.2vw, 38px); letter-spacing: .1em; }
+.rub-head h3.recit::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ink); transform: translate(5px, 5px); filter: none; clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+.rub-head h3.recit::after { content: ""; position: absolute; inset: 0; pointer-events: none; filter: none; border: 2.5px solid var(--ink); border-right: 0; background: none; clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+.recit .n { display: grid; place-items: center; padding: 0 10px; background: var(--ink); color: var(--paper); -webkit-text-fill-color: var(--paper); font: 700 13px/1 var(--f-mono); letter-spacing: .08em; }
+.recit .w { position: relative; padding: 8px 30px 3px 14px; background: var(--paper); clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+.recit .w::after { content: ""; position: absolute; right: 7px; top: -2px; bottom: -2px; width: 2.5px; background: var(--ink); transform: skewX(-14deg); }
+@media (max-width: 760px) { .rub-head h3.recit { font-size: 22px; letter-spacing: .06em; } .recit .n { font-size: 11px; padding: 0 7px; } .recit .w { padding: 6px 24px 2px 10px; } }
+
+@media (max-width: 760px) {
+  .rub-head { gap: 8px; }
+  .rub-head > div:first-child { min-width: 0; }
+  .rub-head h3.recit { font-size: 20px; letter-spacing: .04em; max-width: 100%; }
+  .recit .w { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 22px; }
+  .see-all { font-size: 17px; flex: none; }
+  .see-all span { display: none; }
+}
+
+/* Cartes : ni rubrique ni titre répétés (déjà sur la couverture) */
+.card .cover-link { tabindex: 0; }
+.meta-row:has(.meta:empty):not(:has(.note)) { display: none; }
+.card .meta:empty { display: none; }
+.card { grid-template-rows: auto; }
+
+/* Cartes de hauteur égale : le bloc prix/bouton est toujours calé en bas */
+.card { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+.card > .buy { margin-top: auto; }
+.card .desc { display: none; }
+.card > div:not(.buy):not(.meta-row):empty, .card .tags:empty { display: none; }
+.card .prog { min-height: 1.3em; }
+.grid, .rail { align-items: stretch; }
+/* Étiquettes de titre plus petites : le dessin reste visible */
+.card .cover-title { font-size: clamp(17px, 1.7vw, 23px); padding: 5px 8px 2px; max-width: 82%; line-height: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card .cover { padding: 12px; }
+@media (max-width: 560px) { .card .cover-title { font-size: 16px; max-width: 90%; } }
+
+.card .meta-row { flex-wrap: nowrap; min-height: 22px; }
+.card .meta-row .meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card .meta-row .note { flex: none; }
+
+/* Fiche article : le dessin seul, sans étiquettes */
+.sheet .cover .cover-kicker, .sheet .cover .stamp, .sheet .cover .cover-title, .ghost-cover .cover-kicker, .ghost-cover .stamp, .ghost-cover .cover-title { display: none; }
+.coupon{display:flex;flex-direction:column;height:100%}
+.coupon .mini-add{margin-top:auto;align-self:flex-start}
+.coupon .save{margin-bottom:10px}
+body{margin:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+main{flex:1 0 auto;width:100%;padding-bottom:28px}
+.page{min-height:0}
+footer{margin-top:0;flex:none}
+/* Note « tiré à N ex. » : posée sur le bord du dessin, plus de ligne vide */
+.cover-wrap{position:relative}
+.cover-wrap .note{position:absolute;right:6px;bottom:-10px;z-index:4;margin:0;padding:0 4px;background:var(--paper);transform:rotate(-4deg);font:600 19px/1.1 "Caveat","Comic Sans MS",cursive;color:#2f5f9a;-webkit-text-fill-color:#2f5f9a;white-space:nowrap;pointer-events:none}
+@media (max-width:560px){.cover-wrap .note{font-size:17px}}
+.meta-row:has(.meta:empty){display:none}
+.card .meta-row{min-height:0}
+/* Panier : vignette du dessin */
+.line .l-main{display:flex;gap:10px;align-items:center;min-width:0}
+.line .l-txt{min-width:0}
+.line .cover.thumb{flex:none;width:56px;height:56px;aspect-ratio:auto;padding:0;border-width:2px;box-shadow:3px 3px 0 var(--ink)}
 </style>
 
 <a class="skip" href="#catalogue">Aller au catalogue</a>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="wobble" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter><filter id="wobble-soft" x="-5%" y="-10%" width="110%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="1" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2"/></filter></svg>
 <div class="topbar">
   <div class="wrap">
     <a class="brand" href="#une">Xapic</a>
@@ -888,8 +1077,7 @@ html, body { overflow-x: clip; }
 <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toast-msg"></span><button type="button" data-cart>Voir le panier</button></div>
 
 <script>
-const DATA = {"families": [{"id": 1, "name": "Impressions et Posters", "desc": "Affiche ta passion et crée-toi un intérieur à nul autre pareil.", "promo": null}, {"id": 2, "name": "Pins de Luxe", "desc": "Porte ou collectionne des Pins visibles de jour comme de nuit.", "promo": null}, {"id": 3, "name": "Grands Badges", "desc": "Egaye ta tenue ou tes accessoires avec des badges colorés et festifs.", "promo": 2}, {"id": 4, "name": "Stickers", "desc": "Retrouve ici les Stickers de toutes tailles, sur fond blanc ou transparent.", "promo": null}, {"id": 5, "name": "Magnets", "desc": "Offre à ton frigo la touche de fraicheur qu'il espérait !", "promo": null}, {"id": 6, "name": "T-Shirts", "desc": "Sois celle ou celui qui porte des T-Shirts archi-limités.", "promo": null}, {"id": 7, "name": "Tote Bags", "desc": "Crée la tendance et transporte tes chocapiks avec style !", "promo": null}, {"id": 8, "name": "Autres Goodies", "desc": "Découvre ici des idées foutraques et inclassables.", "promo": null}, {"id": 9, "name": "Ouvrages", "desc": "Plonge-toi dans des ouvrages collectifs complètement fous.", "promo": null}], "sub": [{"id": 1, "fam": 1, "name": "Impressions A4", "promo": null}, {"id": 2, "fam": 1, "name": "Posters A2", "promo": null}, {"id": 3, "fam": 1, "name": "Sérigraphie", "promo": null}, {"id": 4, "fam": 4, "name": "Petit Stickers", "promo": 2}, {"id": 5, "fam": 4, "name": "Pochettes de 6 petits stickers", "promo": null}, {"id": 6, "fam": 4, "name": "Grands Stickers Fond Blanc", "promo": 3}, {"id": 7, "fam": 4, "name": "Grands Stickers Fond Transparent", "promo": 3}, {"id": 8, "fam": 5, "name": "Petits Magnets", "promo": null}, {"id": 9, "fam": 5, "name": "Grands Magnets", "promo": 1}, {"id": 10, "fam": 6, "name": "T-Shirts Sérigraphiés", "promo": null}, {"id": 11, "fam": 6, "name": "T-Shirts Imprimés", "promo": null}, {"id": 12, "fam": 7, "name": "Tote Bags Sérigraphiés", "promo": null}, {"id": 13, "fam": 7, "name": "Tote Bags Imprimés", "promo": null}, {"id": 14, "fam": 9, "name": "Artbooks", "promo": null}, {"id": 15, "fam": 9, "name": "Fanzines", "promo": null}], "promos": [{"id": 1, "label": "3 pour 20 euros", "desc": null, "qty": 3, "price": 20}, {"id": 2, "label": "10 pour 12 euros", "desc": "Panachage possible avec tous les produits disposants de cette promo !", "qty": 10, "price": 12}, {"id": 3, "label": "3 pour 10 euros", "desc": null, "qty": 3, "price": 10}, {"id": 4, "label": "2 pour 45 euros", "desc": null, "qty": 2, "price": 45}], "products": [{"id": 1, "name": "Red Is Dead", "fam": 1, "sf": 3, "size": "50 x 70 cm", "short": "Affiche alternative RED IS DEAD sérigraphiée sur papier mat et texturé, numéroté, signé.", "long": null, "price": 25, "promo": null, "limited": 1, "edition": 50, "featured": 1, "variants": [{"id": 1, "label": null, "stock": 45, "featured": 1}]}, {"id": 2, "name": "Gremlins", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 2, "label": null, "stock": 20, "featured": 0}]}, {"id": 3, "name": "Critter", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 3, "label": null, "stock": 20, "featured": 0}]}, {"id": 4, "name": "Leprechaun", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 4, "label": null, "stock": 20, "featured": 0}]}, {"id": 5, "name": "Hellraiser - Pinhead 2022", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 5, "label": null, "stock": 20, "featured": 0}]}, {"id": 6, "name": "Hellraiser - Weeper", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 6, "label": null, "stock": 20, "featured": 0}]}, {"id": 7, "name": "Hellraiser - Gasp", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 7, "label": null, "stock": 20, "featured": 0}]}, {"id": 8, "name": "The Thing", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 8, "label": null, "stock": 20, "featured": 0}]}, {"id": 9, "name": "Pochette de Goodies Street Trash", "fam": 8, "sf": null, "size": null, "short": null, "long": null, "price": 15, "promo": null, "limited": 1, "edition": 80, "featured": 1, "variants": [{"id": 9, "label": null, "stock": 35, "featured": 1}]}, {"id": 10, "name": "Eat Brains !", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 10, "label": null, "stock": null, "featured": 0}]}, {"id": 11, "name": "Terrifier", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 11, "label": null, "stock": null, "featured": 0}]}, {"id": 12, "name": "Brain Dead - Bébé", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 12, "label": null, "stock": null, "featured": 0}]}, {"id": 13, "name": "Papillon", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 13, "label": null, "stock": null, "featured": 0}]}, {"id": 14, "name": "King Kong", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 14, "label": null, "stock": null, "featured": 0}]}, {"id": 15, "name": "Créature du Lac Noir", "fam": 2, "sf": null, "size": null, "short": "Métal et émail, phosphorescents avec boite collector, limités et numérotés.", "long": null, "price": 16, "promo": null, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 15, "label": null, "stock": 23, "featured": 0}]}, {"id": 16, "name": "Godzilla", "fam": 2, "sf": null, "size": null, "short": "Métal et émail, phosphorescents avec boite collector, limités et numérotés.", "long": null, "price": 16, "promo": null, "limited": 1, "edition": 100, "featured": 1, "variants": [{"id": 16, "label": null, "stock": 35, "featured": 1}]}, {"id": 17, "name": "Mars Attacks !", "fam": 2, "sf": null, "size": null, "short": "Métal et émail, phosphorescents avec boite collector, limités et numérotés.", "long": null, "price": 16, "promo": null, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 17, "label": null, "stock": 45, "featured": 0}]}, {"id": 18, "name": "Artbook - Art de Cinéma", "fam": 9, "sf": 14, "size": null, "short": null, "long": null, "price": 25, "promo": 4, "limited": 1, "edition": 20, "featured": 0, "variants": [{"id": 18, "label": null, "stock": 12, "featured": 0}]}, {"id": 19, "name": "Donnie Darko", "fam": 7, "sf": 13, "size": null, "short": null, "long": null, "price": 15, "promo": null, "limited": 1, "edition": 50, "featured": 1, "variants": [{"id": 19, "label": null, "stock": 26, "featured": 1}]}, {"id": 20, "name": "Red is Dead", "fam": 6, "sf": 10, "size": null, "short": null, "long": null, "price": 18, "promo": null, "limited": 1, "edition": 10, "featured": 1, "variants": [{"id": 20, "label": "S", "stock": 10, "featured": 0}, {"id": 21, "label": "M", "stock": 10, "featured": 0}, {"id": 22, "label": "L", "stock": 10, "featured": 1}, {"id": 23, "label": "XL", "stock": 10, "featured": 0}]}, {"id": 24, "name": "Gremlins", "fam": 4, "sf": 4, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 24, "label": null, "stock": null, "featured": 0}]}, {"id": 25, "name": "Evil Dead 3 - Méchant Ash", "fam": 4, "sf": 4, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 25, "label": null, "stock": null, "featured": 0}]}, {"id": 26, "name": "Evil Dead 2 - Cerf Hilare", "fam": 4, "sf": 4, "size": null, "short": "Stickers brillant", "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 26, "label": null, "stock": null, "featured": 0}]}, {"id": 27, "name": "Terrifier", "fam": 4, "sf": 4, "size": null, "short": "Stickers brillant pailleté", "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 27, "label": null, "stock": null, "featured": 0}]}]}
-;
+const DATA = {"families": [{"id": 1, "name": "Impressions et Posters", "desc": "Affiche ta passion et crée-toi un intérieur à nul autre pareil.", "promo": null}, {"id": 2, "name": "Pins de Luxe", "desc": "Porte ou collectionne des Pins visibles de jour comme de nuit.", "promo": null}, {"id": 3, "name": "Grands Badges", "desc": "Egaye ta tenue ou tes accessoires avec des badges colorés et festifs.", "promo": 2}, {"id": 4, "name": "Stickers", "desc": "Retrouve ici les Stickers de toutes tailles, sur fond blanc ou transparent.", "promo": null}, {"id": 5, "name": "Magnets", "desc": "Offre à ton frigo la touche de fraicheur qu'il espérait !", "promo": null}, {"id": 6, "name": "T-Shirts", "desc": "Sois celle ou celui qui porte des T-Shirts archi-limités.", "promo": null}, {"id": 7, "name": "Tote Bags", "desc": "Crée la tendance et transporte tes chocapiks avec style !", "promo": null}, {"id": 8, "name": "Autres Goodies", "desc": "Découvre ici des idées foutraques et inclassables.", "promo": null}, {"id": 9, "name": "Ouvrages", "desc": "Plonge-toi dans des ouvrages collectifs complètement fous.", "promo": null}], "sub": [{"id": 1, "fam": 1, "name": "Impressions A4", "promo": null}, {"id": 2, "fam": 1, "name": "Posters A2", "promo": null}, {"id": 3, "fam": 1, "name": "Sérigraphie", "promo": null}, {"id": 4, "fam": 4, "name": "Petit Stickers", "promo": 2}, {"id": 5, "fam": 4, "name": "Pochettes de 6 petits stickers", "promo": null}, {"id": 6, "fam": 4, "name": "Grands Stickers Fond Blanc", "promo": 3}, {"id": 7, "fam": 4, "name": "Grands Stickers Fond Transparent", "promo": 3}, {"id": 8, "fam": 5, "name": "Petits Magnets", "promo": null}, {"id": 9, "fam": 5, "name": "Grands Magnets", "promo": 1}, {"id": 10, "fam": 6, "name": "T-Shirts Sérigraphiés", "promo": null}, {"id": 11, "fam": 6, "name": "T-Shirts Imprimés", "promo": null}, {"id": 12, "fam": 7, "name": "Tote Bags Sérigraphiés", "promo": null}, {"id": 13, "fam": 7, "name": "Tote Bags Imprimés", "promo": null}, {"id": 14, "fam": 9, "name": "Artbooks", "promo": null}, {"id": 15, "fam": 9, "name": "Fanzines", "promo": null}], "promos": [{"id": 1, "label": "3 pour 20 euros", "desc": null, "qty": 3, "price": 20}, {"id": 2, "label": "10 pour 12 euros", "desc": "Panachage possible avec tous les produits disposants de cette promo !", "qty": 10, "price": 12}, {"id": 3, "label": "3 pour 10 euros", "desc": null, "qty": 3, "price": 10}, {"id": 4, "label": "2 pour 45 euros", "desc": null, "qty": 2, "price": 45}], "products": [{"id": 1, "name": "Red Is Dead", "fam": 1, "sf": 3, "size": "50 x 70 cm", "short": "Affiche alternative RED IS DEAD sérigraphiée sur papier mat et texturé, numéroté, signé.", "long": null, "price": 25, "promo": null, "limited": 1, "edition": 50, "featured": 1, "variants": [{"id": 1, "label": null, "stock": 45, "featured": 1}]}, {"id": 2, "name": "Gremlins", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 2, "label": null, "stock": 20, "featured": 0}]}, {"id": 3, "name": "Critter", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 3, "label": null, "stock": 20, "featured": 0}]}, {"id": 4, "name": "Leprechaun", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 4, "label": null, "stock": 20, "featured": 0}]}, {"id": 5, "name": "Hellraiser - Pinhead 2022", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 5, "label": null, "stock": 20, "featured": 0}]}, {"id": 6, "name": "Hellraiser - Weeper", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 6, "label": null, "stock": 20, "featured": 0}]}, {"id": 7, "name": "Hellraiser - Gasp", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 7, "label": null, "stock": 20, "featured": 0}]}, {"id": 8, "name": "The Thing", "fam": 5, "sf": 9, "size": null, "short": null, "long": null, "price": 8, "promo": 1, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 8, "label": null, "stock": 20, "featured": 0}]}, {"id": 9, "name": "Pochette de Goodies Street Trash", "fam": 8, "sf": null, "size": null, "short": null, "long": null, "price": 15, "promo": null, "limited": 1, "edition": 80, "featured": 1, "variants": [{"id": 9, "label": null, "stock": 35, "featured": 1}]}, {"id": 10, "name": "Eat Brains !", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 10, "label": null, "stock": null, "featured": 0}]}, {"id": 11, "name": "Terrifier", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 11, "label": null, "stock": null, "featured": 0}]}, {"id": 12, "name": "Brain Dead - Bébé", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 12, "label": null, "stock": null, "featured": 0}]}, {"id": 13, "name": "Papillon", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 13, "label": null, "stock": null, "featured": 0}]}, {"id": 14, "name": "King Kong", "fam": 3, "sf": null, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 14, "label": null, "stock": null, "featured": 0}]}, {"id": 15, "name": "Créature du Lac Noir", "fam": 2, "sf": null, "size": null, "short": "Métal et émail, phosphorescents avec boite collector, limités et numérotés.", "long": null, "price": 16, "promo": null, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 15, "label": null, "stock": 23, "featured": 0}]}, {"id": 16, "name": "Godzilla", "fam": 2, "sf": null, "size": null, "short": "Métal et émail, phosphorescents avec boite collector, limités et numérotés.", "long": null, "price": 16, "promo": null, "limited": 1, "edition": 100, "featured": 1, "variants": [{"id": 16, "label": null, "stock": 35, "featured": 1}]}, {"id": 17, "name": "Mars Attacks !", "fam": 2, "sf": null, "size": null, "short": "Métal et émail, phosphorescents avec boite collector, limités et numérotés.", "long": null, "price": 16, "promo": null, "limited": 1, "edition": 50, "featured": 0, "variants": [{"id": 17, "label": null, "stock": 45, "featured": 0}]}, {"id": 18, "name": "Artbook - Art de Cinéma", "fam": 9, "sf": 14, "size": null, "short": null, "long": null, "price": 25, "promo": 4, "limited": 1, "edition": 20, "featured": 0, "variants": [{"id": 18, "label": null, "stock": 12, "featured": 0}]}, {"id": 19, "name": "Donnie Darko", "fam": 7, "sf": 13, "size": null, "short": null, "long": null, "price": 15, "promo": null, "limited": 1, "edition": 50, "featured": 1, "variants": [{"id": 19, "label": null, "stock": 26, "featured": 1}]}, {"id": 20, "name": "Red is Dead", "fam": 6, "sf": 10, "size": null, "short": null, "long": null, "price": 18, "promo": null, "limited": 1, "edition": 10, "featured": 1, "variants": [{"id": 20, "label": "S", "stock": 10, "featured": 0}, {"id": 21, "label": "M", "stock": 10, "featured": 0}, {"id": 22, "label": "L", "stock": 10, "featured": 1}, {"id": 23, "label": "XL", "stock": 10, "featured": 0}]}, {"id": 24, "name": "Gremlins", "fam": 4, "sf": 4, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 24, "label": null, "stock": null, "featured": 0}]}, {"id": 25, "name": "Evil Dead 3 - Méchant Ash", "fam": 4, "sf": 4, "size": null, "short": null, "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 25, "label": null, "stock": null, "featured": 0}]}, {"id": 26, "name": "Evil Dead 2 - Cerf Hilare", "fam": 4, "sf": 4, "size": null, "short": "Stickers brillant", "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 26, "label": null, "stock": null, "featured": 0}]}, {"id": 27, "name": "Terrifier", "fam": 4, "sf": 4, "size": null, "short": "Stickers brillant pailleté", "long": null, "price": 2, "promo": 2, "limited": 0, "edition": null, "featured": 0, "variants": [{"id": 27, "label": null, "stock": null, "featured": 0}]}]};
 const fam = Object.fromEntries(DATA.families.map(f => [f.id, f]));
 const sub = Object.fromEntries(DATA.sub.map(s => [s.id, s]));
 const promos = Object.fromEntries(DATA.promos.map(p => [p.id, p]));
@@ -956,7 +1144,7 @@ function cover(p, opts = {}) {
 function tags(p) {
   const t = [];
   if (p.promo) t.push(`<span class="tag deal">Lot ${esc(promos[p.promo].label)}</span>`);
-  if (limitTxt(p)) t.push(`<span class="tag red">${limitTxt(p)}</span>`);
+  if (limitTxt(p) && !tags.noLimit) t.push(`<span class="tag red">${limitTxt(p)}</span>`);
   if (lowStock(p)) t.push(`<span class="tag">Plus que ${stockOf(p)}</span>`);
   return t.join('');
 }
@@ -969,7 +1157,7 @@ function ctrl(p, ctx) {
       <output>${q}</output>
       <button type="button" data-inc="${vid}" data-key="inc-${vid}-${ctx}" aria-label="Ajouter un" ${q >= maxFor(vid) ? 'disabled' : ''}>+</button>
     </div>`;
-  return `<button class="mini-add" type="button" data-add="${vid}" data-key="add-${vid}-${ctx}">Ajouter +</button>`;
+  return `<button class="mini-add" type="button" data-add="${vid}" data-key="add-${vid}-${ctx}">Acheter +</button>`;
 }
 function progText(p) {
   if (!p.promo) return '';
@@ -1024,12 +1212,12 @@ function renderFilters() {
 function card(p, ctx = 'cat') {
   const desc = p.long || p.short;
   return `<article class="card"${ctx === 'cat' ? ` id="p-${p.id}"` : ''}>
-    <a class="cover-link" href="#p-${p.id}" data-open="${p.id}" tabindex="-1" aria-hidden="true">${cover(p)}</a>
-    <span class="meta">${esc(subName(p))}${p.size ? ' · ' + esc(p.size) : ''}</span>
-    <h4><a href="#p-${p.id}" data-open="${p.id}">${esc(p.name)}</a></h4>
+    <div class="cover-wrap"><a class="cover-link" href="#p-${p.id}" data-open="${p.id}" aria-label="${esc(p.name)}">${cover(p)}</a>${p.limited && p.edition ? `<span class="note" aria-label="${limitTxt(p)}">tiré à ${p.edition} ex. !</span>` : ''}</div>
+    <div class="meta-row"><span class="meta">${esc([p.sf && sub[p.sf].name !== fam[p.fam].name ? subName(p) : '', p.size].filter(Boolean).join(' · '))}</span></div>
+    <h4 class="sr"><a href="#p-${p.id}" data-open="${p.id}">${esc(p.name)}</a></h4>
     <div style="display:grid;gap:6px;align-content:start">
       ${desc ? `<p class="desc">${esc(desc)}</p>` : ''}
-      <div class="tags">${tags(p)}</div>
+      <div class="tags">${(tags.noLimit = true, tags(p))}${(tags.noLimit = false, '')}</div>
     </div>
     <div class="buy">${priceBlock(p)}<div data-ctrl="${p.id}" data-ctx="${ctx}">${ctrl(p, ctx)}</div></div>
     ${p.promo ? `<p class="prog" data-prog="${p.id}">${esc(progText(p))}</p>` : ''}
@@ -1055,7 +1243,7 @@ function renderCatalogue() {
     box.innerHTML = groups.map(g => `
       <section class="rubrique" aria-label="${esc(g.name)}">
         <div class="rub-head">
-          <div><h3>${esc(g.name)}</h3>${g.desc ? `<p>${esc(g.desc)}</p>` : ''}</div>
+          <div><h3 class="recit"><span class="n">${g.fam ? 'N°' + String(g.fam).padStart(2, '0') : '+'}</span><span class="w">${esc(g.name)}</span></h3>${g.desc ? `<p>${esc(g.desc)}</p>` : ''}</div>
           <div class="rub-acts">
             ${g.fam ? `<button class="see-all" type="button" data-filter="${g.fam}">Tout voir <span>${g.items.length}</span></button>` : ''}
             <div class="rail-nav"><button type="button" data-rail="${g.id}" data-dir="-1" aria-label="Précédent">‹</button><button type="button" data-rail="${g.id}" data-dir="1" aria-label="Suivant">›</button></div>
@@ -1067,7 +1255,7 @@ function renderCatalogue() {
     const fams = DATA.families.filter(f => list.some(p => p.fam === f.id));
     box.innerHTML = fams.map(f => `
       <section class="rubrique" aria-label="${esc(f.name)}">
-        <div class="rub-head"><div><h3>${esc(f.name)}</h3>${f.desc ? `<p>${esc(f.desc)}</p>` : ''}</div></div>
+        <div class="rub-head"><div><h3 class="recit"><span class="n">N°${String(f.id).padStart(2, '0')}</span><span class="w">${esc(f.name)}</span></h3>${f.desc ? `<p>${esc(f.desc)}</p>` : ''}</div></div>
         <div class="grid">${list.filter(p => p.fam === f.id).map(p => card(p)).join('')}</div>
       </section>`).join('');
   } else {
@@ -1171,7 +1359,7 @@ function renderSheet() {
         <output>${sheet.qty}</output>
         <button type="button" data-sq="1" data-key="sq-plus" aria-label="Augmenter" ${sheet.qty >= left ? 'disabled' : ''}>+</button>
       </div>
-      <button class="btn solid" type="button" data-sheet-add data-key="sheet-add">Ajouter · ${eur(p.price * sheet.qty)}</button>
+      <button class="btn solid" type="button" data-sheet-add data-key="sheet-add">Acheter · ${eur(p.price * sheet.qty)}</button>
     </div></div>`
     : `<p class="notice">Tu as déjà tout le stock disponible${p.variants.length > 1 ? ' dans cette taille' : ''} dans ton panier.</p>`;
   const added = sheet.added ? `<div class="added" role="status"><strong>Ajouté ✓</strong><span>${inCart(v.id)} dans ton panier</span><button class="mini-add" type="button" data-cart data-key="sheet-cart">Voir le panier</button><button class="link-btn" type="button" data-close-modal>Continuer mes achats</button></div>` : '';
@@ -1257,7 +1445,7 @@ function renderCartInner() {
       : `<span class="ship-stamp">Livraison offerte !</span>`}</div>`;
   body.innerHTML = ship + c.lines.map(l => `
     <div class="line">
-      <div><div class="name">${esc(l.p.name)}</div><div class="sub">${esc(subName(l.p))}${l.v.label ? ' · Taille ' + esc(l.v.label) : ''} · ${eur(l.p.price)} pièce</div></div>
+      <div class="l-main"><span class="cover thumb pat-${l.p.fam}" aria-hidden="true"></span><div class="l-txt"><div class="name">${esc(l.p.name)}</div><div class="sub">${esc(subName(l.p))}${l.v.label ? ' · Taille ' + esc(l.v.label) : ''} · ${eur(l.p.price)} pièce</div></div></div>
       <div class="total">${eur(l.total)}</div>
       <div class="acts">
         <div class="stepper" role="group" aria-label="Quantité de ${esc(l.p.name)}">
