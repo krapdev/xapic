@@ -617,6 +617,168 @@ html, body { overflow-x: clip; }
 }
 @media (max-width: 380px) { .tabs .l { display: none; } .tabs .s { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .dd-list, .dd.open::after { animation: none; } }
+
+/* ===================== V5 ===================== */
+/* Panier : zoom + rotation aléatoire, plus rien à l'intérieur */
+.cart-btn .count-wrap::before { display: none; }
+.cart-btn.bump .count { animation: none; }
+.cart-btn.bump, #dock-btn.bump { animation: cart-zoom .36s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes cart-zoom { 0% { scale: 1; rotate: 0deg; } 40% { scale: 1.22; rotate: var(--rot, 6deg); } 100% { scale: 1; rotate: 0deg; } }
+#dock-btn.bump { animation-name: dock-zoom; }
+@keyframes dock-zoom { 40% { scale: 1.04; rotate: var(--rot, 1deg); } }
+.dock-pop { animation: none; }
+
+/* Compteur de résultats : texte simple, plus de bulle */
+#result-count { display: inline; margin: 0; padding: 0; background: none; border: 0; border-radius: 0; font-family: var(--f-mono); font-size: 13px; letter-spacing: 0; }
+#result-count::after { display: none; }
+.results.flash::before { display: none; }
+
+/* Bulle de dialogue réservée à « Par rubrique » (tri) ; la liste des rubriques reste carrée */
+.rub-combo .dd-list { border-radius: 0; box-shadow: 4px 4px 0 var(--ink); top: calc(100% + 6px); }
+.rub-combo .dd-list li { border-radius: 0; }
+.rub-combo .dd.open::before, .rub-combo .dd.open::after { display: none; }
+
+/* Changement de scène : les éléments arrivent en alternance gauche / droite */
+.in-l, .in-r { animation: in-l .38s cubic-bezier(.2, .9, .25, 1) var(--i, 0s) both; }
+.in-r { animation-name: in-r; }
+@keyframes in-l { from { opacity: 0; translate: -110px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes in-r { from { opacity: 0; translate: 110px 0; } to { opacity: 1; translate: 0 0; } }
+.card.in-l, .card.in-r { animation-duration: .24s; }
+.card.in-l { animation-name: card-l; } .card.in-r { animation-name: card-r; }
+@keyframes card-l { from { opacity: 0; translate: -24px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes card-r { from { opacity: 0; translate: 24px 0; } to { opacity: 1; translate: 0 0; } }
+
+/* Ombre portée au crayon sous les couvertures */
+.card .cover-link { isolation: isolate; }
+.card .cover-link::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; transform: translate(5px, 6px) rotate(.5deg);
+  background: repeating-linear-gradient(-58deg, rgba(40,38,34,.45) 0 .9px, transparent .9px 4px);
+  -webkit-mask-image: var(--pencil); mask-image: var(--pencil); -webkit-mask-size: 260px 260px; mask-size: 260px 260px; }
+:root { --pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.06 .9' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 2.2 -.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"); }
+@media (prefers-reduced-motion: reduce) { .in-l, .in-r, .cart-btn.bump, #dock-btn.bump { animation: none; } }
+
+/* Changement de filtre : les cartes montent doucement, dans l'ordre de lecture */
+.card.rise { animation: rise var(--dur, .32s) cubic-bezier(.35, .1, .25, 1) var(--i, 0s) both; }
+@keyframes rise { from { clip-path: inset(-12px 100% -12px -12px); } to { clip-path: inset(-12px -12px -12px -12px); } }
+@media (prefers-reduced-motion: reduce) { .card.rise { animation: none; } }
+
+
+
+/* Changement de filtre : la carte se redessine (cadre au trait, trame, puis étiquette) avec un timing aléatoire */
+.card.redraw > :not(.cover-link) { animation: rise var(--dur, .3s) cubic-bezier(.35, .1, .25, 1) calc(var(--i, 0s) + .18s) both; }
+.card.redraw .cover-link.drawn::after { animation: draw-box var(--dur, .3s) cubic-bezier(.5, 0, .4, 1) var(--i, 0s) forwards; }
+.card.redraw .cover-link.drawn .cover::before { animation: hatch-in calc(var(--dur, .3s) + .06s) ease-out calc(var(--i, 0s) + .14s) forwards; }
+.card.redraw .cover-link.drawn .cover-kicker, .card.redraw .cover-link.drawn .stamp { animation: fade-in .14s ease calc(var(--i, 0s) + .3s) forwards; }
+.card.redraw .cover-link.drawn .cover-title { animation: stamp-in .2s cubic-bezier(.3, 1.6, .5, 1) calc(var(--i, 0s) + .36s) forwards; }
+.card.redraw .cover-link::before { animation: fade-in .2s ease calc(var(--i, 0s) + .4s) both; }
+
+/* Version plus discrète : le cadre et le texte restent en place, seules la trame et les étiquettes se redessinent */
+.card.redraw > :not(.cover-link) { animation: none; }
+.card.redraw .cover-link.sketch .cover { border-color: var(--ink); }
+.card.redraw .cover-link.drawn::after { display: none; animation: none; }
+.card.redraw .cover-link.drawn .cover::before { animation-duration: calc(var(--dur, .3s) + .04s); animation-delay: var(--i, 0s); }
+.card.redraw .cover-link.drawn .cover-kicker, .card.redraw .cover-link.drawn .stamp { animation-delay: calc(var(--i, 0s) + .12s); }
+.card.redraw .cover-link.drawn .cover-title { animation: title-bounce .32s ease-out calc(var(--i, 0s) + .16s) forwards; }
+@keyframes title-bounce { 0% { opacity: 0; scale: 1.45; } 45% { opacity: 1; scale: .94; } 72% { scale: 1.03; } 100% { opacity: 1; scale: 1; } }
+.card.redraw .cover-link::before { animation: none; }
+
+/* Ouverture du panier façon case de BD : glisse avec rebond, ombre décalée, titre tamponné, lignes en cascade */
+.drawer { box-shadow: -8px 0 0 var(--ink); }
+.drawer:not([hidden]) { animation: drawer-in .26s cubic-bezier(.2, .8, .2, 1); }
+@keyframes drawer-in { from { translate: 105% 0; box-shadow: 0 0 0 var(--ink); } to { translate: 0 0; box-shadow: -8px 0 0 var(--ink); } }
+
+#scrim:not([hidden]) { animation: scrim-in .2s ease-out; background: radial-gradient(rgba(18,18,18,.35) 1px, transparent 1.4px) 0 0 / 6px 6px, color-mix(in srgb, var(--ink) 45%, transparent); }
+@keyframes scrim-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .drawer:not([hidden]), .drawer:not([hidden]) *, #scrim:not([hidden]) { animation: none !important; } }
+
+/* Pied du panier compact */
+.drawer-foot { padding: 10px 20px 12px; gap: 4px; border-top-width: 2px; }
+.drawer-foot .sum { font-size: 13px; line-height: 1.35; }
+.drawer-foot .sum.big { font-size: 26px; line-height: 1; margin: 2px 0 6px; }
+.drawer-foot .btn { min-height: 46px; font-size: 20px; }
+.drawer-foot .link-btn { min-height: 28px; font-size: 12px; }
+
+/* Mobile : de l'air entre les onglets et le contenu (l'onglet actif déborde de 8 px) */
+@media (max-width: 760px) {
+  .masthead { padding-top: 26px; }
+  .page:not(#une) { padding-top: 26px; }
+  #une.page { padding-top: 18px; }
+}
+
+/* Fiche article : le dessin part de la carte et vient en grand ; la fiche apparaît autour */
+.sheet:not([hidden]) { animation: none; }
+.sheet.fly { animation: sheet-fade .3s ease-out both; }
+.sheet.fly .sheet-inner > .cover { visibility: hidden; }
+.sheet.fly .info > * { animation: fade-in .22s ease-out .2s both; opacity: 0; }
+.sheet.pop { animation: sheet-fade .22s ease-out both; }
+@keyframes sheet-fade { from { opacity: 0; scale: .97; } }
+.ghost-cover { position: fixed; z-index: 60; margin: 0; pointer-events: none; }
+@media (max-width: 760px) { @keyframes sheet-fade { from { opacity: 0; } } }
+
+
+.sheet-buy { flex-wrap: nowrap; }
+.sheet-buy .btn { white-space: nowrap; min-width: 0; padding: 0 16px; }
+@media (max-width: 480px) { .sheet-buy .btn { font-size: 18px; letter-spacing: .08em; } }
+
+/* Lignes de vitesse façon BD pendant que le dessin arrive, puis impact */
+.speedlines { position: fixed; inset: 0; z-index: 59; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg at var(--cx) var(--cy), rgba(18,18,18,.85) 0 .7deg, transparent .7deg 4.2deg);
+  -webkit-mask-image: radial-gradient(circle at var(--cx) var(--cy), transparent 26vmin, #000 34vmin, #000 60vmin, transparent 85vmin);
+  mask-image: radial-gradient(circle at var(--cx) var(--cy), transparent 26vmin, #000 34vmin, #000 60vmin, transparent 85vmin);
+  animation: speed .5s ease-out both; }
+@keyframes speed { 0% { opacity: 0; scale: 1.25; } 35% { opacity: .9; } 100% { opacity: 0; scale: 1; } }
+.sheet .cover.land { animation: land .16s ease-out; }
+@keyframes land { 0% { scale: 1.02; } 100% { scale: 1; } }
+
+/* Livraison offerte : jauge en tête du panier */
+.ship { display: grid; gap: 6px; padding: 10px 12px; border: 2px solid var(--ink); background: var(--paper); font-family: var(--f-mono); font-size: 13px; }
+.ship b { font-family: var(--f-head); font-weight: 400; font-size: 19px; letter-spacing: .04em; color: var(--riso); }
+.ship-bar { height: 10px; border: 1.5px solid var(--ink); background: var(--paper); }
+.ship-bar i { display: block; height: 100%; background: repeating-linear-gradient(-45deg, var(--ink) 0 2px, transparent 2px 5px); transition: width .25s ease; }
+.ship.ok { border-style: dashed; border-color: var(--riso); justify-items: center; }
+.ship-stamp { font-family: var(--f-head); font-size: 26px; letter-spacing: .12em; color: var(--riso); border: 2.5px solid var(--riso); padding: 2px 12px 0; transform: rotate(-3deg); }
+/* Complète ton lot : mini-cartes ajoutables en un clic */
+.upsell { display: grid; gap: 6px; margin-top: 4px; }
+.upsell-t { font-family: var(--f-head); font-size: 18px; letter-spacing: .1em; color: var(--ink); }
+.upsell-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.up-card { position: relative; display: grid; gap: 2px; align-content: start; color: var(--ink); }
+.up-cover { position: relative; height: 56px; border: 2px solid var(--ink); background: var(--paper); overflow: hidden; }
+.up-cover::before { content: ""; position: absolute; inset: 0; -webkit-mask-image: linear-gradient(150deg, #000 15%, transparent 88%); mask-image: linear-gradient(150deg, #000 15%, transparent 88%); }
+.up-name { font-family: var(--f-head); font-size: 15px; line-height: 1; letter-spacing: .03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-price { font-family: var(--f-mono); font-size: 12px; font-weight: 700; }
+.up-add { position: absolute; top: -6px; right: -6px; width: 36px; height: 36px; display: grid; place-items: center; border: 2px solid var(--ink); background: var(--paper); box-shadow: 2px 2px 0 var(--ink); font-family: var(--f-head); font-size: 24px; line-height: 1; color: var(--ink); cursor: pointer; padding: 0 0 2px; }
+.up-add:hover { background: var(--riso); color: #fff; -webkit-text-fill-color: #fff; }
+.deal-box { color: var(--ink); }
+
+.up-foot { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.up-add { position: static; width: 32px; height: 32px; flex: none; box-shadow: 2px 2px 0 var(--ink); }
+
+/* « + » en bulle de BD posée sur l'image */
+.up-add { position: absolute; top: -8px; right: -6px; z-index: 1; width: 36px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); box-shadow: 2px 2px 0 var(--ink); font-size: 22px; padding: 0 0 2px; }
+.up-add::before, .up-add::after { content: ""; position: absolute; left: 4px; bottom: -9px; width: 12px; height: 11px; clip-path: polygon(0 100%, 30% 0, 100% 0); pointer-events: none; }
+.up-add::before { background: var(--ink); left: 3px; bottom: -11px; width: 14px; height: 13px; }
+.up-add::after { background: var(--paper); }
+.up-add:hover::after { background: var(--riso); }
+.up-foot { display: block; }
+
+/* « + » : vraie bulle de dialogue (contour continu, pointe intégrée) */
+.up-add { top: -14px; right: -10px; width: 46px; height: 40px; border: 0; border-radius: 0; box-shadow: none; padding: 0 0 8px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 40'%3E%3Cpath d='M23 3.5C35 3.5 42.5 9.5 42.5 17S35 30.5 24 30.5h-6.5L8.5 38l3-8.6C6 27.4 3.5 22.8 3.5 17 3.5 9.5 11 3.5 23 3.5Z' fill='%23EDE9DE' stroke='%23121212' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; filter: drop-shadow(2px 2px 0 #121212); font-family: var(--f-head); font-size: 24px; line-height: 1; color: var(--ink); }
+.up-add::before, .up-add::after { display: none; }
+.up-add:hover { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 40'%3E%3Cpath d='M23 3.5C35 3.5 42.5 9.5 42.5 17S35 30.5 24 30.5h-6.5L8.5 38l3-8.6C6 27.4 3.5 22.8 3.5 17 3.5 9.5 11 3.5 23 3.5Z' fill='%23C62D25' stroke='%23121212' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E"); color: #fff; -webkit-text-fill-color: #fff; }
+.up-add:focus-visible { outline: 3px solid var(--riso); outline-offset: 2px; }
+
+.up-add, .up-add:hover { background-color: transparent; }
+
+/* « + » simple, carré, posé sur l'image */
+.up-add, .up-add:hover { position: absolute; top: -6px; right: -6px; width: 34px; height: 34px; padding: 0 0 2px; border: 2px solid var(--ink); border-radius: 0; background: var(--paper); box-shadow: 2px 2px 0 var(--ink); filter: none; font-family: var(--f-head); font-size: 24px; line-height: 1; }
+.up-add:hover { background: var(--riso); color: #fff; -webkit-text-fill-color: #fff; }
+
+/* Mini-carte en deux : image à gauche, « + » à droite, dans un même cadre */
+.up-card { grid-template-columns: minmax(0, 1fr) 30px; column-gap: 0; }
+.up-card .up-cover { grid-column: 1; grid-row: 1; border-right-width: 1px; }
+.up-card .up-foot { display: contents; }
+.up-card .up-add, .up-card .up-add:hover { position: static; grid-column: 2; grid-row: 1; width: auto; height: auto; border-left-width: 1px; box-shadow: none; }
+.up-card .up-name, .up-card .up-price { grid-column: 1 / -1; }
+.up-card .up-name { margin-top: 2px; }
 </style>
 
 <a class="skip" href="#catalogue">Aller au catalogue</a>
@@ -682,7 +844,7 @@ html, body { overflow-x: clip; }
         </label>
       </div>
       <div class="chips" id="filters" role="group" aria-label="Filtrer par rubrique"></div>
-      <div class="result-line"><span id="result-count" aria-live="polite"></span><button class="link-btn" type="button" id="reset" data-reset hidden>Tout réinitialiser</button></div>
+      <div class="result-line sr"><span id="result-count" aria-live="polite"></span><button class="link-btn" type="button" id="reset" data-reset hidden tabindex="-1">Tout réinitialiser</button></div>
     </div>
     <div id="rubriques" class="results"></div>
     <a class="next-page" href="#une" data-page="une"><span>Retour au sommaire · p. 01</span>À la une ↺</a>
@@ -754,6 +916,7 @@ const limitTxt = p => p.limited && p.edition ? `Tiré à ${p.edition} ex.` : '';
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Panier ---------- */
+const SHIP = 6, FREE_SHIP = 60; // frais de port suivis et seuil de livraison offerte (à ajuster)
 let cart = {};
 try { cart = JSON.parse(localStorage.getItem('xapic-cart') || '{}') || {}; } catch (e) { cart = {}; }
 Object.keys(cart).forEach(k => { if (!byVariant[k] || !(cart[k] > 0)) delete cart[k]; });
@@ -877,8 +1040,8 @@ function renderCatalogue() {
   const list = products.filter(matches);
   const filtered = state.fam !== 'all' || state.promo || state.q;
   const rc = $('result-count'), txt = `${list.length} article${list.length > 1 ? 's' : ''}${state.q ? ` pour « ${state.q} »` : state.fam !== 'all' ? ` · ${fam[state.fam].name}` : ''}${!list.length ? ' !' : ''}`;
-  if (rc.textContent !== txt) { rc.textContent = txt; if (!reduced()) { rc.classList.remove('pop'); void rc.offsetWidth; rc.classList.add('pop'); } }
-  $('reset').hidden = !filtered && state.sort === 'default';
+  rc.textContent = txt;
+  $('reset').hidden = true;
   const box = $('rubriques');
   if (!list.length) {
     box.innerHTML = `<div class="empty-results"><strong>Aucun article</strong><span>Essaie un autre mot ou retire un filtre.</span><button class="btn" type="button" data-reset>Afficher tout le catalogue</button></div>`;
@@ -913,7 +1076,21 @@ function renderCatalogue() {
   }
   updateRailNav(); syncDD();
 }
-function applyFilters(fx) { renderFilters(); renderCatalogue(); sketch($('rubriques')); if (fx) flash(); }
+function applyFilters(fx) {
+  renderFilters(); renderCatalogue();
+  if (fx) deal();
+}
+function deal() {
+  if (reduced()) return;
+  [...$('rubriques').querySelectorAll('.card')].slice(0, 12).forEach(c => {
+    const cl = c.querySelector('.cover-link');
+    c.classList.remove('redraw'); cl?.classList.remove('sketch', 'drawn');
+    c.style.setProperty('--i', (Math.random() * .14).toFixed(3) + 's');
+    c.style.setProperty('--dur', (.24 + Math.random() * .16).toFixed(3) + 's');
+    void c.offsetWidth; c.classList.add('redraw'); cl?.classList.add('sketch', 'drawn');
+    clearTimeout(c._r); c._r = setTimeout(() => { c.classList.remove('redraw'); cl?.classList.remove('sketch', 'drawn'); }, 800);
+  });
+}
 function flash() { if (reduced()) return; const r = $('rubriques'); r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); }
 
 /* ---------- Rails horizontaux ---------- */
@@ -951,7 +1128,7 @@ function inkTitles() {
 
 /* ---------- Fiche article ---------- */
 const sheet = { pid: null, vid: null, qty: 1, added: false };
-function openSheet(pid) {
+function openSheet(pid, from) {
   const p = byId[pid];
   if (!p) return;
   sheet.pid = p.id;
@@ -959,6 +1136,7 @@ function openSheet(pid) {
   sheet.qty = 1; sheet.added = false;
   renderSheet();
   openModal($('sheet'));
+  zoomFrom(from);
 }
 function renderSheet() {
   const p = byId[sheet.pid];
@@ -1013,8 +1191,52 @@ function renderSheet() {
     </div>`;
 }
 
+
+/* ---------- Fiche : le dessin de la carte se projette en grand ---------- */
+function zoomFrom(src) {
+  const sh = $('sheet');
+  sh.classList.remove('fly', 'pop'); void sh.offsetWidth;
+  if (reduced()) return;
+  const dst = sh.querySelector('.sheet-inner > .cover');
+  if (!src || !dst || !src.offsetParent) { sh.classList.add('pop'); return; }
+  const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect();
+  const ghost = dst.cloneNode(true);
+  ghost.classList.add('ghost-cover');
+  Object.assign(ghost.style, { left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', height: a.height + 'px' });
+  document.body.appendChild(ghost);
+  sh.classList.add('fly');
+  const anim = ghost.animate([
+    { left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', height: a.height + 'px', boxShadow: '0 0 0 #121212' },
+    { left: b.left + 'px', top: b.top + 'px', width: b.width + 'px', height: b.height + 'px', boxShadow: '0 0 0 #121212' }
+  ], { duration: 420, easing: 'cubic-bezier(.2, .75, .2, 1)' });
+  const lines = document.createElement('div');
+  lines.className = 'speedlines'; lines.setAttribute('aria-hidden', 'true');
+  lines.style.setProperty('--cx', (b.left + b.width / 2) + 'px'); lines.style.setProperty('--cy', (b.top + b.height / 2) + 'px');
+  document.body.appendChild(lines);
+  anim.onfinish = anim.oncancel = () => { ghost.remove(); sh.classList.remove('fly');  };
+  setTimeout(() => lines.remove(), 700);
+}
+
 /* ---------- Panier (volet) ---------- */
+function upsell(pid) {
+  const list = products.filter(p => String(p.promo) === String(pid) && !soldOut(p))
+    .sort((a, b) => (inCart(a.variants[0].id) > 0) - (inCart(b.variants[0].id) > 0)).slice(0, 3);
+  if (!list.length) return '';
+  return `<div class="upsell"><span class="upsell-t">Complète ton lot</span><div class="upsell-row">${list.map(p => {
+    const one = p.variants.length === 1, vid = p.variants[0].id;
+    return `<div class="up-card"><div class="up-cover pat-${p.fam}" aria-hidden="true"></div><span class="up-name">${esc(p.name)}</span><div class="up-foot"><span class="up-price">${eur(p.price)}</span>${one
+      ? `<button class="up-add" type="button" data-add="${vid}" data-key="up-${vid}" aria-label="Ajouter ${esc(p.name)}">+</button>`
+      : `<button class="up-add" type="button" data-open="${p.id}" aria-label="Choisir la taille de ${esc(p.name)}">+</button>`}</div></div>`;
+  }).join('')}</div></div>`;
+}
 function renderCart() {
+  const bodyEl = $('cart-lines'), anchor = document.activeElement?.closest?.('.deal-box');
+  const aId = anchor?.dataset.deal, aTop = anchor ? anchor.getBoundingClientRect().top : 0, st = bodyEl.scrollTop;
+  renderCartInner();
+  bodyEl.scrollTop = st;
+  if (aId) { const n = bodyEl.querySelector(`.deal-box[data-deal="${aId}"]`); if (n) bodyEl.scrollTop += n.getBoundingClientRect().top - aTop; }
+}
+function renderCartInner() {
   const c = computeCart();
   $('cart-count').textContent = c.count;
   $('cart-amount').textContent = c.count ? eur(c.total) : '';
@@ -1029,7 +1251,11 @@ function renderCart() {
     foot.innerHTML = '';
     return;
   }
-  body.innerHTML = c.lines.map(l => `
+  const left = FREE_SHIP - c.total;
+  const ship = `<div class="ship${left <= 0 ? ' ok' : ''}">${left > 0
+      ? `<span>Plus que <b>${eur(left)}</b> pour la livraison offerte</span><div class="ship-bar" aria-hidden="true"><i style="width:${Math.min(100, c.total / FREE_SHIP * 100)}%"></i></div>`
+      : `<span class="ship-stamp">Livraison offerte !</span>`}</div>`;
+  body.innerHTML = ship + c.lines.map(l => `
     <div class="line">
       <div><div class="name">${esc(l.p.name)}</div><div class="sub">${esc(subName(l.p))}${l.v.label ? ' · Taille ' + esc(l.v.label) : ''} · ${eur(l.p.price)} pièce</div></div>
       <div class="total">${eur(l.total)}</div>
@@ -1044,16 +1270,16 @@ function renderCart() {
     </div>`).join('') +
     c.deals.map(d => {
       const pct = d.missing ? (d.rest / d.pr.qty) * 100 : 100;
-      return `<div class="deal-box">
+      return `<div class="deal-box" data-deal="${d.pr.id}">
         ${d.lots ? `<div class="row"><span>Lot ${esc(d.pr.label)} × ${d.lots}</span><span>− ${eur(d.saving)}</span></div>` : `<div class="row"><span>Lot ${esc(d.pr.label)}</span><span>${d.rest}/${d.pr.qty}</span></div>`}
-        ${d.missing ? `<span>Encore ${d.missing} article${d.missing > 1 ? 's' : ''} pour ${d.lots ? 'un lot de plus' : 'profiter du lot'}.</span><div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div><button class="link-btn" type="button" data-promo="${d.pr.id}" style="justify-self:start">Compléter le lot</button>` : ''}
+        ${d.missing ? `<span>Encore ${d.missing} article${d.missing > 1 ? 's' : ''} pour ${d.lots ? 'un lot de plus' : 'profiter du lot'}.</span><div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div>${upsell(d.pr.id)}<button class="link-btn" type="button" data-promo="${d.pr.id}" style="justify-self:start">Voir tous les articles du lot</button>` : ''}
       </div>`;
     }).join('');
   foot.innerHTML = `
     <div class="sum"><span>Sous-total</span><span>${eur(c.gross)}</span></div>
     ${c.saved ? `<div class="sum save"><span>Économies sur les lots</span><span>− ${eur(c.saved)}</span></div>` : ''}
-    <div class="sum"><span>Livraison</span><span>calculée à l'étape suivante</span></div>
-    <div class="sum big"><span>Total</span><span>${eur(c.total)}</span></div>
+    <div class="sum"><span>Livraison suivie</span><span>${c.total >= FREE_SHIP ? 'Offerte' : eur(SHIP)}</span></div>
+    <div class="sum big"><span>Total</span><span>${eur(c.total + (c.total >= FREE_SHIP ? 0 : SHIP))}</span></div>
     <button class="btn solid block" type="button" id="checkout">Commander →</button>
     <button class="link-btn" type="button" data-close-modal style="justify-self:center">Continuer mes achats</button>
     <div class="notice" id="checkout-note" hidden>Prototype : le paiement sécurisé par Stripe sera branché à l'étape suivante. Aucune commande n'a été envoyée.</div>`;
@@ -1070,13 +1296,14 @@ function refresh() {
   if (!$('sheet').hidden) renderSheet();
   if (key) {
     const tries = [key, key.replace(/^add-/, 'inc-'), key.replace(/^(dec|inc)-/, 'add-'), key.replace(/^inc-/, 'dec-'), key.replace(/^dec-/, 'inc-')];
-    for (const k of tries) { const el = document.querySelector(`[data-key="${k}"]`); if (el && !el.disabled) { el.focus(); break; } }
+    for (const k of tries) { const el = document.querySelector(`[data-key="${k}"]`); if (el && !el.disabled) { el.focus({ preventScroll: true }); break; } }
   }
 }
 
 /* ---------- Modales ---------- */
 let lastFocus = null, openEl = null;
 function openModal(el) {
+  $('drawer').classList.remove('live'); $('sheet').classList.remove('live'); setTimeout(() => el.classList.add('live'), 650);
   if (openEl && openEl !== el) { openEl.hidden = true; } else { lastFocus = document.activeElement; }
   openEl = el; el.hidden = false; $('scrim').hidden = false;
   document.documentElement.style.overflow = 'hidden';
@@ -1108,8 +1335,13 @@ function toast(msg) {
   clearTimeout(toastT); toastT = setTimeout(() => { $('toast').hidden = true; }, 4000);
 }
 function bump() {
-  const b = $('open-cart'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
-  const dk = $('dock-btn'); if (dk && !$('dock').hidden && !reduced()) { dk.classList.remove('dock-pop'); void dk.offsetWidth; dk.classList.add('dock-pop'); }
+  if (reduced()) return;
+  const r = (Math.random() < .5 ? -1 : 1) * (4 + Math.random() * 7);
+  [$('open-cart'), !$('dock').hidden && $('dock-btn')].forEach(b => {
+    if (!b) return;
+    b.style.setProperty('--rot', (b.id === 'dock-btn' ? r / 4 : r).toFixed(1) + 'deg');
+    b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
+  });
 }
 
 function add(vid, n = 1) {
@@ -1203,6 +1435,13 @@ document.addEventListener('keydown', e => {
 }, true);
 
 /* ---------- Pages façon magazine ---------- */
+function scene(els, back, step = .06) {
+  els.forEach((e, i) => {
+    e.classList.remove('in-l', 'in-r'); e.style.setProperty('--i', (i * step).toFixed(2) + 's');
+    void e.offsetWidth; e.classList.add((i % 2 === 0) !== !!back ? 'in-l' : 'in-r');
+    clearTimeout(e._sc); e._sc = setTimeout(() => e.classList.remove('in-l', 'in-r'), 900);
+  });
+}
 const PAGES = ['une', 'bons-plans', 'catalogue'];
 const curPage = () => PAGES.find(p => !$(p).hidden) || 'une';
 function showPage(id, opts = {}) {
@@ -1213,7 +1452,13 @@ function showPage(id, opts = {}) {
   document.querySelectorAll('.tabs a').forEach(a => { if (a.dataset.page === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   scrollTo({ top: 0, behavior: 'auto' });
   const el = $(id);
-  if (from !== id && !reduced()) { el.classList.remove('turn', 'back'); void el.offsetWidth; el.classList.add('turn'); if (PAGES.indexOf(id) < PAGES.indexOf(from)) el.classList.add('back'); }
+  if (from !== id && !reduced()) {
+    el.classList.remove('turn', 'back'); void el.offsetWidth; el.classList.add('turn'); if (PAGES.indexOf(id) < PAGES.indexOf(from)) el.classList.add('back');
+    const parts = id === 'une' ? [...$('top').querySelectorAll('.issue, .logo, .lede')] : [];
+    parts.push(...el.querySelectorAll(':scope > .sec-head, :scope > .rail, :scope > .toolbar, :scope > .next-page'));
+    if (id === 'catalogue') parts.splice(parts.length - 1, 0, ...[...el.querySelectorAll('.rubrique')].slice(0, 3));
+    scene(parts, PAGES.indexOf(id) < PAGES.indexOf(from));
+  }
   if (!opts.noHash) history.replaceState(null, '', '#' + id);
   updateRailNav();
 }
@@ -1225,10 +1470,10 @@ document.addEventListener('click', e => {
   const d = t.dataset;
   if (t.tagName === 'A' && (d.page || PAGES.includes((t.getAttribute('href') || '').slice(1)))) { e.preventDefault(); showPage(d.page || t.getAttribute('href').slice(1)); return; }
   if (d.rail) { const r = $(d.rail); r.scrollBy({ left: +d.dir * r.clientWidth * .85, behavior: reduced() ? 'auto' : 'smooth' }); }
-  else if (d.open) { e.preventDefault(); openSheet(+d.open); }
+  else if (d.open) { e.preventDefault(); openSheet(+d.open, t.closest('.card, li, .une-lead')?.querySelector('.cover')); }
   else if (d.add) add(d.add);
-  else if (d.inc) setQty(d.inc, inCart(d.inc) + 1);
-  else if (d.dec) setQty(d.dec, inCart(d.dec) - 1);
+  else if (d.inc) { const before = inCart(d.inc); setQty(d.inc, before + 1); if (inCart(d.inc) > before) bump(); }
+  else if (d.dec) { const before = inCart(d.dec); setQty(d.dec, before - 1); if (inCart(d.dec) < before) bump(); }
   else if (d.remove) { const vid = d.remove; setQty(vid, 0); $('cart-lines').querySelector('button')?.focus(); }
   else if (d.size) { sheet.vid = +d.size; sheet.qty = 1; sheet.added = false; refresh(); }
   else if (d.sq) { sheet.qty += +d.sq; refresh(); }
@@ -1245,7 +1490,7 @@ document.addEventListener('click', e => {
 $('q').addEventListener('input', e => { state.q = e.target.value.trim(); $('q-clear').hidden = !e.target.value; renderCatalogue(); sketch($('rubriques')); });
 $('q-clear').addEventListener('click', () => { $('q').value = ''; state.q = ''; $('q-clear').hidden = true; renderCatalogue(); $('q').focus(); });
 $('rub').addEventListener('change', e => { state.fam = e.target.value; applyFilters(true); });
-$('sort').addEventListener('change', e => { state.sort = e.target.value; renderCatalogue(); sketch($('rubriques')); });
+$('sort').addEventListener('change', e => { state.sort = e.target.value; renderCatalogue(); deal(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && openEl) { e.preventDefault(); closeModal(); }
   else if (e.key === 'Escape' && !$('toast').hidden) $('toast').hidden = true;
